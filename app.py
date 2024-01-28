@@ -16,7 +16,7 @@ def get_ticket_number():
     retries = n_retries
     while True:
         try:
-            return cache.incr('ticket_number')
+            return cache.incr('ticket_number_'+ args.queue_name)
         except redis.exceptions.ConnectionError as exc:
             if retries == 0:
                 raise exc
@@ -96,3 +96,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     cache = redis.Redis(host=args.redis_host, port=args.redis_port)
     uvicorn.run(app,host="0.0.0.0",port="8000",log_level="info")
+
