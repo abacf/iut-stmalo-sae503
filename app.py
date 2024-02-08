@@ -4,7 +4,7 @@ import redis
 import argparse
 import uvicorn
 from prometheus_fastapi_instrumentator import Instrumentator
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.openapi.docs import get_swagger_ui_html
 
 app: FastAPI = FastAPI()
