@@ -19,3 +19,6 @@ ipython = "^8.21.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+indent-width = 2
