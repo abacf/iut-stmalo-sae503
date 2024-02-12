@@ -5,7 +5,9 @@ import redis
 import argparse
 import uvicorn
 from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Gauge
 from fastapi import FastAPI
+import threading
 from fastapi.openapi.docs import get_swagger_ui_html
 
 app: FastAPI = FastAPI()
@@ -13,6 +15,10 @@ app: FastAPI = FastAPI()
 # nombre de tentatives pour joindre Redis
 n_retries = 3
 
+QUEUE_SIZE = Gauge(
+    "queue_size",
+    "Current size of the queue.",
+)
 
 def get_ticket_number():
   retries = n_retries
@@ -54,13 +60,20 @@ def get_queue_size():
   retries = n_retries
   while True:
     try:
-      return cache.llen("queue_" + args.queue_name)
+      queue_size = cache.llen("queue_" + args.queue_name)
+      QUEUE_SIZE.set(queue_size)
+      return queue_size
     except redis.exceptions.ConnectionError as exc:
       if retries == 0:
         raise exc
       retries -= 1
       time.sleep(0.5)
 
+
+def update_queue_size_periodically():
+    while True:
+        get_queue_size()
+        time.sleep(5)  # wait for 60 seconds before updating again
 
 @app.get("/get_ticket")
 def get_ticket():
@@ -95,7 +108,13 @@ def display_doc():
   return get_swagger_ui_html(title="SAE503", openapi_url="/openapi.json")
 
 
+async def startup_event():
+    thread = threading.Thread(
+        target=update_queue_size_periodically, daemon=True)
+    thread.start()
+
 if __name__ == "__main__":
+  app.add_event_handler("startup", startup_event)
   parser = argparse.ArgumentParser(
     description="Webservice de gestion d'une file d'attente"
   )
