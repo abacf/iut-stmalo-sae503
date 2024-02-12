@@ -15,10 +15,6 @@ app: FastAPI = FastAPI()
 # nombre de tentatives pour joindre Redis
 n_retries = 3
 
-QUEUE_SIZE = Gauge(
-    "queue_size",
-    "Current size of the queue.",
-)
 
 def get_ticket_number():
   retries = n_retries
@@ -142,6 +138,10 @@ if __name__ == "__main__":
     app,
     metric_namespace=f"file_attente_{args.env}",
     metric_subsystem=args.queue_name,
+  )
+  QUEUE_SIZE = Gauge(
+      f"file_attente_{args.env}_{args.queue_name}_queue",
+      f"Current size of the queue {args.queue_name}.",
   )
   cache = redis.Redis(host=args.redis_host, port=args.redis_port)
   instrumentator.expose(
