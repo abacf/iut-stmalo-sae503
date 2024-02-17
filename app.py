@@ -68,8 +68,7 @@ def get_queue_size():
 
 def update_queue_size_periodically():
     while True:
-        get_queue_size()
-        time.sleep(5)  # wait for 60 seconds before updating again
+      get_queue_size()
 
 @app.get("/get_ticket")
 def get_ticket():
