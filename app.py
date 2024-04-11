@@ -67,8 +67,9 @@ def get_queue_size():
 
 
 def update_queue_size_periodically():
-    while True:
-      get_queue_size()
+  while True:
+    get_queue_size()
+
 
 @app.get("/get_ticket")
 def get_ticket():
@@ -104,9 +105,9 @@ def display_doc():
 
 
 async def startup_event():
-    thread = threading.Thread(
-        target=update_queue_size_periodically, daemon=True)
-    thread.start()
+  thread = threading.Thread(target=update_queue_size_periodically, daemon=True)
+  thread.start()
+
 
 if __name__ == "__main__":
   app.add_event_handler("startup", startup_event)
@@ -139,8 +140,8 @@ if __name__ == "__main__":
     metric_subsystem=args.queue_name,
   )
   QUEUE_SIZE = Gauge(
-      f"file_attente_{args.env}_{args.queue_name}_queue",
-      f"Current size of the queue {args.queue_name}.",
+    f"file_attente_{args.env}_{args.queue_name}_queue",
+    f"Current size of the queue {args.queue_name}.",
   )
   cache = redis.Redis(host=args.redis_host, port=args.redis_port)
   instrumentator.expose(
